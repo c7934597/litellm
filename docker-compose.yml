@@ -35,6 +35,18 @@ services:
       retries: 3     # Retry up to 3 times if health check fails
       start_period: 40s  # Wait 40 seconds after container start before beginning health checks
 
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: litellm-autoheal
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+      AUTOHEAL_INTERVAL: "15"
+      AUTOHEAL_START_PERIOD: "60"
+      AUTOHEAL_DEFAULT_STOP_TIMEOUT: "20"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   db:
     image: postgres:16
     restart: always
@@ -65,16 +77,6 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=15d"
     restart: always
-
-  autoheal:
-    image: willfarrell/autoheal
-    container_name: litellm-autoheal
-    restart: always
-    environment:
-      AUTOHEAL_CONTAINER_LABEL: autoheal
-      AUTOHEAL_INTERVAL: 15
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   prometheus_data:
