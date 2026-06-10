@@ -5,6 +5,9 @@ services:
       args:
         target: runtime
     image: my-litellm:latest
+    restart: unless-stopped
+    labels:
+      - autoheal=true
     volumes:
       - ./config.yaml:/app/config.yaml
     command:
@@ -62,6 +65,16 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=15d"
     restart: always
+
+  autoheal:
+    image: willfarrell/autoheal
+    container_name: litellm-autoheal
+    restart: always
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+      AUTOHEAL_INTERVAL: 15
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   prometheus_data:
