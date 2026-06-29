@@ -8642,3 +8642,19 @@ async def test_initialize_sets_azure_api_version_when_unset(monkeypatch):
         telemetry=False,
     )
     assert os.environ["AZURE_API_VERSION"] == "2099-12-01-preview"
+
+
+@pytest.mark.asyncio
+async def test_initialize_explicit_api_version_overrides_env(monkeypatch):
+    """An explicitly-passed --api_version (a value other than the click default)
+    still overrides an existing AZURE_API_VERSION, preserving the explicit CLI
+    override path."""
+    monkeypatch.setenv("AZURE_API_VERSION", "2025-04-01-preview")
+    await initialize(
+        config=None,
+        api_version="2099-12-01-preview",
+        drop_params=False,
+        add_function_to_prompt=False,
+        telemetry=False,
+    )
+    assert os.environ["AZURE_API_VERSION"] == "2099-12-01-preview"
